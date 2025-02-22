@@ -98,6 +98,7 @@ class BorderedLabel(Label):
         """Update the border when the label's position or size changes."""
         self.border.pos = self.pos
         self.border.size = self.size
+        self.font_size = 32
 
 
 class TabbedTextInput(TextInput):
@@ -106,8 +107,8 @@ class TabbedTextInput(TextInput):
         self.next_input = next_input
         self.multiline = False  # Ensure single-line input
         self.size_hint_y = None
-        self.height = 40  # Set height to fit one line
-        self.font_size = 24  # Adjust font size for better readability
+        self.height = 50  # Set height to fit one line
+        self.font_size = 32  # Adjust font size for better readability
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         # Handle Tab key press
@@ -121,16 +122,15 @@ class TabbedTextInput(TextInput):
 class SimulationApp(App):
     def build(self):
         global i
-        self.tabs = TabbedPanel(do_default_tab=False)
+        self.tabs = TabbedPanel(do_default_tab=False, size_hint=(1, 1))
 
         # First Tab: Input and Results
-        self.input_tab = TabbedPanelItem(text="Ввод")
+        self.input_tab = TabbedPanelItem(text="Ввод", font_size = 24)
         self.input_layout = RelativeLayout()  # Use RelativeLayout for overlaying widgets
 
         # Add background image (fills the entire screen)
         self.background = Image(source=file_background, allow_stretch=True, keep_ratio=False, size_hint=(1, 1))
         self.input_layout.add_widget(self.background)
-
         # Input fields
         self.dm_input = TabbedTextInput(hint_text="Введите dm", multiline=False, size_hint=(0.2, None), height=30,
                                         pos_hint={'x': 0.1, 'top': 0.9})
@@ -151,12 +151,12 @@ class SimulationApp(App):
 
         # Submit button
         Submit_button_text = "Старт"
-        self.submit_button = Button(text=Submit_button_text, size_hint=(0.2, 0.1), pos_hint={'x': 0.4, 'top': 0.8})
+        self.submit_button = Button(text=Submit_button_text, size_hint=(0.2, 0.1), pos_hint={'x': 0.4, 'top': 0.8}, font_size = 32)
         self.submit_button.bind(on_press=self.process_input)
 
         # Result label
         self.result_label = Label(text="Тут будут результаты", size_hint=(0.8, 0.4),
-                                  pos_hint={'x': 0.1, 'top': 0.7})
+                                  pos_hint={'x': 0.1, 'top': 0.7}, font_size = 32)
 
         # Add widgets to input layout (on top of the background image)
         self.input_layout.add_widget(self.dm_input)
@@ -168,7 +168,7 @@ class SimulationApp(App):
         self.input_tab.add_widget(self.input_layout)
 
         # Second Tab: Input History
-        self.input_history_tab = TabbedPanelItem(text="История ввода")
+        self.input_history_tab = TabbedPanelItem(text="Ист. ввода", font_size = 24)
         self.input_history_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         # Add column headers
@@ -199,7 +199,7 @@ class SimulationApp(App):
         self.input_history_tab.add_widget(self.input_history_layout)
 
         # Third Tab: History
-        self.history_tab = TabbedPanelItem(text="История")
+        self.history_tab = TabbedPanelItem(text="История", font_size = 24)
         self.history_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         # Add column headers
@@ -279,12 +279,12 @@ class SimulationApp(App):
                     h[i] = 0
                 # Display results
                 result_text = (
-                    f"h: {round(h[i], 2)},        x: {round(x[i], 2)}\n"
-                    f"u: {round(u[i], 2)},      V_h: {round(V_h[i], 2)}\n\n"
-                    f"Сек.расход не более: {str(round(a_max * (M + m[i]) / C, 2))}, "
-                    f"Время: {str(round(100 / (a_max * (M + m[i]) / C), 2))}\n"
-                    f"Остаток топл.: {round(m[i], 2)},    a: {round(a, 2)}\n"
-                    f"Общее время: {round(t_f[i], 2)}\n"
+                    f"\n h: {round(h[i], 2)},          x: {round(x[i], 2)}\n"
+                    f"u: {round(u[i], 2)},          V_h: {round(V_h[i], 2)}\n\n"
+                    f"Сек.расход не более:   {str(round(a_max * (M + m[i]) / C, 2))}, "
+                    f"Время:     {str(round(100 / (a_max * (M + m[i]) / C), 2))}\n"
+                    f"Остаток топл.:     {round(m[i], 2)},    a: {round(a, 2)}\n"
+                    f"Общее время:       {round(t_f[i], 2)}\n"
                 )
                 self.result_label.text = result_text
 
