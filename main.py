@@ -147,7 +147,7 @@ class SimulationApp(App):
         # Set default values for the first step
         self.dm_input.text = "100"
         self.t_input.text = "3.9"
-        self.al_input.text = "43"
+        self.al_input.text = "42.7"
 
         # Submit button
         Submit_button_text = "Старт"
@@ -378,7 +378,7 @@ class SimulationApp(App):
         # Clear input fields
         self.dm_input.text = "100"
         self.t_input.text = "3.9"
-        self.al_input.text = "43"
+        self.al_input.text = "42.7"
 
         # Clear result label
         self.result_label.text = "Тут будут результаты"
