@@ -168,7 +168,7 @@ class SimulationApp(App):
         self.input_tab.add_widget(self.input_layout)
 
         # Second Tab: Input History
-        self.input_history_tab = TabbedPanelItem(text="Input History")
+        self.input_history_tab = TabbedPanelItem(text="История ввода")
         self.input_history_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         # Add column headers
