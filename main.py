@@ -10,7 +10,6 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
-# from kivy.core.window import Window
 import math
 
 # Global variables
@@ -33,8 +32,9 @@ i = int(0)
 t_f = [float(0)]
 file_background = '111.jpg'
 Submit_button_text = 'ok'
-# Data storage for the second tab
+# Data storage for the tabs
 data_history = []
+input_history = []
 
 
 def q_a():
@@ -167,24 +167,55 @@ class SimulationApp(App):
 
         self.input_tab.add_widget(self.input_layout)
 
-        # Second Tab: History
-        self.history_tab = TabbedPanelItem(text="История")
-        self.history_layout = BoxLayout(orientation='vertical', padding=10, spacing=1)
+        # Second Tab: Input History
+        self.input_history_tab = TabbedPanelItem(text="Input History")
+        self.input_history_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         # Add column headers
-        self.column_headers = GridLayout(cols=9, size_hint_y=None, height=40, spacing=1)
-        headers = ["i", "dm", "t", "al", "h", "x", "u", "V_h", "t_f"]
+        self.input_column_headers = GridLayout(cols=3, size_hint_y=None, height=40, spacing=20)
+        headers = ["dm", "t", "al"]
         for header in headers:
-            header_label = BorderedLabel(text=header, size_hint_x=None, width=120, bold=True)
+            header_label = BorderedLabel(text=header, size_hint_x=None, width=150, bold=True)
+            self.input_column_headers.add_widget(header_label)
+
+        # Scrollable input history display
+        self.input_history_scroll = ScrollView(do_scroll_x=True, do_scroll_y=True)
+        self.input_history_table = GridLayout(
+            cols=3,
+            size_hint_x=None,
+            size_hint_y=None,
+            spacing=20,
+            row_default_height=50,  # Increase row height
+            row_force_default=True,  # Force row height
+        )
+        self.input_history_table.bind(minimum_width=self.input_history_table.setter('width'))
+        self.input_history_table.bind(minimum_height=self.input_history_table.setter('height'))
+        self.input_history_scroll.add_widget(self.input_history_table)
+
+        # Add widgets to input history layout
+        self.input_history_layout.add_widget(self.input_column_headers)
+        self.input_history_layout.add_widget(self.input_history_scroll)
+
+        self.input_history_tab.add_widget(self.input_history_layout)
+
+        # Third Tab: History
+        self.history_tab = TabbedPanelItem(text="История")
+        self.history_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+
+        # Add column headers
+        self.column_headers = GridLayout(cols=6, size_hint_y=None, height=40, spacing=20)
+        headers = ["i", "h", "x", "u", "V_h", "t_f"]
+        for header in headers:
+            header_label = BorderedLabel(text=header, size_hint_x=None, width=150, bold=True)
             self.column_headers.add_widget(header_label)
 
         # Scrollable history display
         self.history_scroll = ScrollView(do_scroll_x=True, do_scroll_y=True)
         self.history_table = GridLayout(
-            cols=9,
+            cols=6,
             size_hint_x=None,
             size_hint_y=None,
-            spacing=1,
+            spacing=20,
             row_default_height=50,  # Increase row height
             row_force_default=True,  # Force row height
         )
@@ -200,6 +231,7 @@ class SimulationApp(App):
 
         # Add tabs to the main panel
         self.tabs.add_widget(self.input_tab)
+        self.tabs.add_widget(self.input_history_tab)
         self.tabs.add_widget(self.history_tab)
 
         return self.tabs
@@ -226,14 +258,16 @@ class SimulationApp(App):
                 # Store data for history
                 data_history.append({
                     "i": i,
-                    "dm": dm,
-                    "t": t,
-                    "al": al/math.pi*180,
                     "h": h[i],
                     "x": x[i],
                     "u": u[i],
                     "V_h": V_h[i],
                     "t_f": t_f[i]
+                })
+                input_history.append({
+                    "dm": dm,
+                    "t": t,
+                    "al": al / math.pi * 180
                 })
                 if ((h[i] < 0) and (abs(h[i]) > h_min)):
                     t = 2 * h[i] / (math.sqrt(u[i] ** 2 + 2 * h[i] * (g - a * math.cos(al))) - u[i])
@@ -259,8 +293,8 @@ class SimulationApp(App):
                 self.t_input.text = str(round(t, 2))
                 self.al_input.text = str(round(al * 180 / math.pi, 2))  # Convert radians back to degrees
 
-                # Update history tab
-                self.update_history_tab()
+                # Update history tabs
+                self.update_history_tabs()
 
             else:
                 self.show_popup("Error", "dm должно быть менее 5% общей массы.")
@@ -268,18 +302,26 @@ class SimulationApp(App):
         except ValueError:
             self.show_popup("Error", "Введите корректные dm, t, al.")
 
-    def update_history_tab(self):
+    def update_history_tabs(self):
         # Clear existing history content
         self.history_table.clear_widgets()
+        self.input_history_table.clear_widgets()
 
-        # Add new history entries
-        for entry in data_history:
-            # Add each value to the table
+        # Add new history entries to the Input History tab
+        for entry in input_history:
             values = [
-                str(entry["i"]),
                 f"{entry['dm']:.2f}",
                 f"{entry['t']:.2f}",
-                f"{entry['al']:.1f}",
+                f"{entry['al']:.1f}"
+            ]
+            for value in values:
+                value_label = BorderedLabel(text=value, size_hint_x=None, width=150)
+                self.input_history_table.add_widget(value_label)
+
+        # Add new history entries to the История tab
+        for entry in data_history:
+            values = [
+                str(entry["i"]),
                 f"{entry['h']:.2f}",
                 f"{entry['x']:.2f}",
                 f"{entry['u']:.2f}",
@@ -287,7 +329,7 @@ class SimulationApp(App):
                 f"{entry['t_f']:.2f}"
             ]
             for value in values:
-                value_label = BorderedLabel(text=value, size_hint_x=None, width=120)
+                value_label = BorderedLabel(text=value, size_hint_x=None, width=150)
                 self.history_table.add_widget(value_label)
 
     def show_popup(self, title, message):
@@ -362,7 +404,7 @@ class SimulationApp(App):
 
     def reset_program(self, dialog):
         """Reset the program and close the dialog."""
-        global i, dm, t, al, h, V_h, x, u, m, t_f, data_history
+        global i, dm, t, al, h, V_h, x, u, m, t_f, data_history, input_history
         i = 0
         dm = 0
         t = 0
@@ -374,6 +416,7 @@ class SimulationApp(App):
         m = [float(1000)]
         t_f = [float(0)]
         data_history = []
+        input_history = []
 
         # Clear input fields
         self.dm_input.text = "100"
