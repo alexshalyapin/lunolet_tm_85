@@ -31,7 +31,7 @@ dm = float(0)
 t = float(0)
 i = int(0)
 t_f = [float(0)]
-file_background = '111.jpg '
+file_background = '111.jpg'
 Submit_button_text = 'ok'
 # Data storage for the second tab
 data_history = []
@@ -169,13 +169,13 @@ class SimulationApp(App):
 
         # Second Tab: History
         self.history_tab = TabbedPanelItem(text="История")
-        self.history_layout = BoxLayout(orientation='vertical', padding=10, spacing=0)
+        self.history_layout = BoxLayout(orientation='vertical', padding=10, spacing=1)
 
         # Add column headers
-        self.column_headers = GridLayout(cols=9, size_hint_y=None, height=40, spacing=0)
+        self.column_headers = GridLayout(cols=9, size_hint_y=None, height=40, spacing=1)
         headers = ["i", "dm", "t", "al", "h", "x", "u", "V_h", "t_f"]
         for header in headers:
-            header_label = BorderedLabel(text=header, size_hint_x=None, width=100, bold=True)
+            header_label = BorderedLabel(text=header, size_hint_x=None, width=120, bold=True)
             self.column_headers.add_widget(header_label)
 
         # Scrollable history display
@@ -184,8 +184,8 @@ class SimulationApp(App):
             cols=9,
             size_hint_x=None,
             size_hint_y=None,
-            spacing=0,
-            row_default_height=40,  # Increase row height
+            spacing=1,
+            row_default_height=50,  # Increase row height
             row_force_default=True,  # Force row height
         )
         self.history_table.bind(minimum_width=self.history_table.setter('width'))
@@ -228,7 +228,7 @@ class SimulationApp(App):
                     "i": i,
                     "dm": dm,
                     "t": t,
-                    "al": al,
+                    "al": al/math.pi*180,
                     "h": h[i],
                     "x": x[i],
                     "u": u[i],
@@ -279,7 +279,7 @@ class SimulationApp(App):
                 str(entry["i"]),
                 f"{entry['dm']:.2f}",
                 f"{entry['t']:.2f}",
-                f"{entry['al']:.4f}",
+                f"{entry['al']:.1f}",
                 f"{entry['h']:.2f}",
                 f"{entry['x']:.2f}",
                 f"{entry['u']:.2f}",
@@ -287,7 +287,7 @@ class SimulationApp(App):
                 f"{entry['t_f']:.2f}"
             ]
             for value in values:
-                value_label = BorderedLabel(text=value, size_hint_x=None, width=100)
+                value_label = BorderedLabel(text=value, size_hint_x=None, width=120)
                 self.history_table.add_widget(value_label)
 
     def show_popup(self, title, message):
@@ -321,7 +321,7 @@ class SimulationApp(App):
         # Add headers
         headers = ["h", "x", "u", "V_h", "t_f", "m"]
         for header in headers:
-            header_label = BorderedLabel(text=header, size_hint_x=None, width=100, bold=True)
+            header_label = BorderedLabel(text=header, size_hint_x=None, width=120, bold=True)
             grid_layout.add_widget(header_label)
 
         # Add data rows
@@ -336,7 +336,7 @@ class SimulationApp(App):
                 f"{round(m[i], 2)}"
             ]
             for value in values:
-                value_label = BorderedLabel(text=value, size_hint_x=None, width=100)
+                value_label = BorderedLabel(text=value, size_hint_x=None, width=120)
                 grid_layout.add_widget(value_label)
 
         grid_layout.bind(minimum_height=grid_layout.setter('height'))
