@@ -11,12 +11,17 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
 import math
+import requests
+import json
 
 # Global variables
+
+url = 'http://185.18.54.154:8000/myapp/receive_data/'
 g = float(1.62)
 M = float(2250)
 m = [float(1000)]
 C = float(3660)
+_s0 = 250000
 q = float(0)
 h = [float(0.0000001)]
 h_min = float(0.00000001)
@@ -36,6 +41,30 @@ Submit_button_text = 'ok'
 data_history = []
 input_history = []
 
+def send_post_request():
+    global V_h, x, u,i, dm,_s0
+    _s = abs(_s0 - x[i])
+    _v = (u[i] ** 2 + V_h[i] ** 2) ** (0.5)
+    res = 10 * (2 / _s + 10 / _v + dm)
+    tabl_rec = {
+        'text': 'Alex',
+        'value1': res,
+        'value2': _s,
+        'value3': _v,
+        'value4': dm
+    }
+    json_data = json.dumps(tabl_rec)
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, data=json_data, headers=headers)
+
+    # Check response
+    if response.status_code == 200:
+        table = response.json().get('table', [])
+        for entry in table:
+            print(entry)
+    else:
+        print(f"Error: {response.status_code}")
+        print(response.text)
 
 def q_a():
     global q, dm, t, C, M, m, a
@@ -354,8 +383,11 @@ class SimulationApp(App):
         popup_button.bind(on_press=popup.dismiss)
         popup.open()
 
+
     def show_results_dialog(self):
         """Display the results in a dialog box with Finish and Repeat buttons."""
+
+        send_post_request()
         dialog_layout = BoxLayout(orientation='vertical', padding=20, spacing=0)
         scroll_view = ScrollView(do_scroll_x=True, do_scroll_y=True)
         grid_layout = GridLayout(cols=6, size_hint_y=1, spacing=0)

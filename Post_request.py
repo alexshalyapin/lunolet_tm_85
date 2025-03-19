@@ -6,11 +6,11 @@ url = 'http://185.18.54.154:8000/myapp/receive_data/'
 
 # Data to send
 data = {
-    'text': '2Получилось!',
-    'value1': 105,
-    'value2': 203,
-    'value3': 302,
-    'value4': 401
+    'text': 'Alex',
+    'value1': 1000,
+    'value2': 0,
+    'value3': 0,
+    'value4': 0
 }
 
 # Convert data to JSON
