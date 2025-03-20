@@ -46,7 +46,7 @@ def send_post_request():
     global V_h, x, u, i, m, _s0
     _s = fabs(_s0 - x[i - 1])
     _v = (u[i - 1] ** 2 + V_h[i - 1] ** 2) ** (0.5)
-    res = 10 * (200 / _s + 200 / _v + m[i - 1])
+    res = 10 * ((2 / _s) + (10 / _v) + m[i - 1])
     tabl_rec = {
         'text': 'Alex',
         'value1': res,
