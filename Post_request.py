@@ -7,7 +7,7 @@ url = 'http://185.18.54.154:8000/myapp/receive_data/'
 # Data to send
 data = {
     'text': 'Alex',
-    'value1': 1000,
+    'value1': 1,
     'value2': 0,
     'value3': 0,
     'value4': 0

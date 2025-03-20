@@ -11,11 +11,11 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
 import math
+from math import fabs
 import requests
 import json
 
 # Global variables
-
 url = 'http://185.18.54.154:8000/myapp/receive_data/'
 g = float(1.62)
 M = float(2250)
@@ -36,16 +36,17 @@ t = float(0)
 i = int(0)
 t_f = [float(0)]
 file_background = '111.jpg'
+file_background2 = '222.jpg'
 Submit_button_text = 'ok'
 # Data storage for the tabs
 data_history = []
 input_history = []
 
 def send_post_request():
-    global V_h, x, u,i, dm,_s0
-    _s = abs(_s0 - x[i])
-    _v = (u[i] ** 2 + V_h[i] ** 2) ** (0.5)
-    res = 10 * (2 / _s + 10 / _v + dm)
+    global V_h, x, u, i, m, _s0
+    _s = int(fabs(_s0 - x[i - 1]))
+    _v = int((u[i - 1] ** 2 + V_h[i - 1] ** 2) ** (0.5))
+    res = int(10 * (200 / _s + 200 / _v + m[i - 1]))
     tabl_rec = {
         'text': 'Alex',
         'value1': res,
@@ -71,7 +72,6 @@ def q_a():
     q = dm / t
     a = q * C / (M + m[i])
 
-
 def correct_bl():
     global i, t_f, t, V_h, x, u, h, m
     main_bl()
@@ -92,7 +92,6 @@ def correct_bl():
     del u[i:]
     del t_f[i:]
 
-
 def main_bl():
     global V_h, a, t, al, x, u, g, h, i, a_max, q, dm
     V_h.append(V_h[i] + a * t * math.sin(al))
@@ -111,7 +110,6 @@ def main_bl():
         q_a()
         main_bl()
 
-
 class BorderedLabel(Label):
     """Custom Label with a border."""
 
@@ -128,7 +126,6 @@ class BorderedLabel(Label):
         self.border.pos = self.pos
         self.border.size = self.size
         self.font_size = 32
-
 
 class TabbedTextInput(TextInput):
     def __init__(self, next_input=None, **kwargs):
@@ -147,14 +144,13 @@ class TabbedTextInput(TextInput):
             return True  # Prevent default behavior
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
-
 class SimulationApp(App):
     def build(self):
         global i
         self.tabs = TabbedPanel(do_default_tab=False, size_hint=(1, 1))
 
         # First Tab: Input and Results
-        self.input_tab = TabbedPanelItem(text="Ввод", font_size = 24)
+        self.input_tab = TabbedPanelItem(text="Ввод", font_size=24)
         self.input_layout = RelativeLayout()  # Use RelativeLayout for overlaying widgets
 
         # Add background image (fills the entire screen)
@@ -162,11 +158,11 @@ class SimulationApp(App):
         self.input_layout.add_widget(self.background)
         # Input fields
         self.dm_input = TabbedTextInput(hint_text="Введите dm", multiline=False, size_hint=(0.2, None), height=30,
-                                        pos_hint={'x': 0.1, 'top': 0.9})
+                                       pos_hint={'x': 0.1, 'top': 0.9})
         self.t_input = TabbedTextInput(hint_text="Введите t", multiline=False, size_hint=(0.2, None), height=30,
-                                       pos_hint={'x': 0.4, 'top': 0.9})
+                                      pos_hint={'x': 0.4, 'top': 0.9})
         self.al_input = TabbedTextInput(hint_text="Введите al", multiline=False, size_hint=(0.2, None), height=30,
-                                        pos_hint={'x': 0.7, 'top': 0.9})
+                                       pos_hint={'x': 0.7, 'top': 0.9})
 
         # Set up tab order
         self.dm_input.next_input = self.t_input
@@ -180,12 +176,13 @@ class SimulationApp(App):
 
         # Submit button
         Submit_button_text = "Старт"
-        self.submit_button = Button(text=Submit_button_text, size_hint=(0.2, 0.1), pos_hint={'x': 0.4, 'top': 0.8}, font_size = 32)
+        self.submit_button = Button(text=Submit_button_text, size_hint=(0.2, 0.1), pos_hint={'x': 0.4, 'top': 0.8},
+                                    font_size=32)
         self.submit_button.bind(on_press=self.process_input)
 
         # Result label
         self.result_label = Label(text="Тут будут результаты", size_hint=(0.8, 0.4),
-                                  pos_hint={'x': 0.1, 'top': 0.7}, font_size = 32)
+                                 pos_hint={'x': 0.1, 'top': 0.7}, font_size=32)
 
         # Add widgets to input layout (on top of the background image)
         self.input_layout.add_widget(self.dm_input)
@@ -197,7 +194,7 @@ class SimulationApp(App):
         self.input_tab.add_widget(self.input_layout)
 
         # Second Tab: Input History
-        self.input_history_tab = TabbedPanelItem(text="Ист. ввода", font_size = 24)
+        self.input_history_tab = TabbedPanelItem(text="Ист. ввода", font_size=24)
         self.input_history_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         # Add column headers
@@ -228,7 +225,7 @@ class SimulationApp(App):
         self.input_history_tab.add_widget(self.input_history_layout)
 
         # Third Tab: History
-        self.history_tab = TabbedPanelItem(text="История", font_size = 24)
+        self.history_tab = TabbedPanelItem(text="История", font_size=24)
         self.history_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         # Add column headers
@@ -258,12 +255,94 @@ class SimulationApp(App):
 
         self.history_tab.add_widget(self.history_layout)
 
+        # Fourth Tab: Highscore Table
+        self.highscore_tab = TabbedPanelItem(text="Highscore", font_size=24)
+        self.highscore_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+
+        # Add column headers
+        self.highscore_column_headers = GridLayout(cols=5, size_hint_y=None, height=40, spacing=20)
+        headers = ["Text", "Value1", "Value2", "Value3", "Value4"]
+        for header in headers:
+            header_label = BorderedLabel(text=header, size_hint_x=None, width=150, bold=True)
+            self.highscore_column_headers.add_widget(header_label)
+
+        # Scrollable highscore display
+        self.highscore_scroll = ScrollView(do_scroll_x=True, do_scroll_y=True)
+        self.highscore_table = GridLayout(
+            cols=5,
+            size_hint_x=None,
+            size_hint_y=None,
+            spacing=20,
+            row_default_height=50,  # Increase row height
+            row_force_default=True,  # Force row height
+        )
+        self.highscore_table.bind(minimum_width=self.highscore_table.setter('width'))
+        self.highscore_table.bind(minimum_height=self.highscore_table.setter('height'))
+        self.highscore_scroll.add_widget(self.highscore_table)
+
+        # Add widgets to highscore layout
+        self.highscore_layout.add_widget(self.highscore_column_headers)
+        self.highscore_layout.add_widget(self.highscore_scroll)
+
+        self.highscore_tab.add_widget(self.highscore_layout)
+
+        # Fifth Tab: Text with Background
+        self.text_tab = TabbedPanelItem(text="Text", font_size=24)
+        self.text_layout = RelativeLayout()
+
+        # Add background image
+        self.text_background = Image(source=file_background2, allow_stretch=True, keep_ratio=False, size_hint=(1, 1))
+        self.text_layout.add_widget(self.text_background)
+
+        # Add 15 lines of text
+        self.text_lines = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        for i in range(15):
+            line_label = Label(text=f"Line {i + 1}", size_hint_y=None, height=30, font_size=24)
+            self.text_lines.add_widget(line_label)
+
+        self.text_layout.add_widget(self.text_lines)
+        self.text_tab.add_widget(self.text_layout)
+
         # Add tabs to the main panel
         self.tabs.add_widget(self.input_tab)
         self.tabs.add_widget(self.input_history_tab)
         self.tabs.add_widget(self.history_tab)
+        self.tabs.add_widget(self.highscore_tab)
+        self.tabs.add_widget(self.text_tab)
+
+        # Fetch and display highscore data
+        self.fetch_highscore_data()
 
         return self.tabs
+
+    def fetch_highscore_data(self):
+        """Fetch highscore data from the Django server and update the highscore tab."""
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                table = response.json().get('table', [])
+                # Sort by value1 (descending order)
+                table.sort(key=lambda x: x['value1'], reverse=True)
+
+                # Clear existing highscore content
+                self.highscore_table.clear_widgets()
+
+                # Add new highscore entries
+                for entry in table:
+                    values = [
+                        entry['text'],
+                        str(entry['value1']),
+                        str(entry['value2']),
+                        str(entry['value3']),
+                        str(entry['value4'])
+                    ]
+                    for value in values:
+                        value_label = BorderedLabel(text=value, size_hint_x=None, width=150)
+                        self.highscore_table.add_widget(value_label)
+            else:
+                print(f"Error fetching highscore data: {response.status_code}")
+        except Exception as e:
+            print(f"Error fetching highscore data: {str(e)}")
 
     def process_input(self, instance):
         global dm, t, al, i
@@ -382,7 +461,6 @@ class SimulationApp(App):
         popup = Popup(title="Внимание!", content=popup_layout, size_hint=(0.8, 0.4))
         popup_button.bind(on_press=popup.dismiss)
         popup.open()
-
 
     def show_results_dialog(self):
         """Display the results in a dialog box with Finish and Repeat buttons."""
