@@ -44,9 +44,9 @@ input_history = []
 
 def send_post_request():
     global V_h, x, u, i, m, _s0
-    _s = int(fabs(_s0 - x[i - 1]))
-    _v = int((u[i - 1] ** 2 + V_h[i - 1] ** 2) ** (0.5))
-    res = int(10 * (200 / _s + 200 / _v + m[i - 1]))
+    _s = fabs(_s0 - x[i - 1])
+    _v = (u[i - 1] ** 2 + V_h[i - 1] ** 2) ** (0.5)
+    res = 10 * (200 / _s + 200 / _v + m[i - 1])
     tabl_rec = {
         'text': 'Alex',
         'value1': res,
@@ -256,12 +256,12 @@ class SimulationApp(App):
         self.history_tab.add_widget(self.history_layout)
 
         # Fourth Tab: Highscore Table
-        self.highscore_tab = TabbedPanelItem(text="Highscore", font_size=24)
+        self.highscore_tab = TabbedPanelItem(text="Табл.рек.", font_size=24)
         self.highscore_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         # Add column headers
         self.highscore_column_headers = GridLayout(cols=5, size_hint_y=None, height=40, spacing=20)
-        headers = ["Text", "Value1", "Value2", "Value3", "Value4"]
+        headers = ["Имя", "Результат", "Отклон.", "Скорость", "Ост.топл"]
         for header in headers:
             header_label = BorderedLabel(text=header, size_hint_x=None, width=150, bold=True)
             self.highscore_column_headers.add_widget(header_label)
@@ -331,10 +331,10 @@ class SimulationApp(App):
                 for entry in table:
                     values = [
                         entry['text'],
-                        str(entry['value1']),
-                        str(entry['value2']),
-                        str(entry['value3']),
-                        str(entry['value4'])
+                        str(round(entry['value1'])),
+                        str(round(entry['value2'])),
+                        str(round(entry['value3'])),
+                        str(round(entry['value4']))
                     ]
                     for value in values:
                         value_label = BorderedLabel(text=value, size_hint_x=None, width=150)
