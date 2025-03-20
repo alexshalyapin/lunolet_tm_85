@@ -291,7 +291,7 @@ class SimulationApp(App):
         self.highscore_tab.add_widget(self.highscore_layout)
 
         # Fifth Tab: Text with Background
-        self.text_tab = TabbedPanelItem(text="Text", font_size=24)
+        self.text_tab = TabbedPanelItem(text="О программе", font_size=24)
         self.text_layout = RelativeLayout()
 
         # Add background image
@@ -336,7 +336,7 @@ class SimulationApp(App):
                     values = [
                         entry['text'],
                         str(round(entry['value1'])),
-                        str(round(entry['value2'])),
+                        str(round(entry['value2'],2)),
                         str(round(entry['value3'])),
                         str(round(entry['value4']))
                     ]
