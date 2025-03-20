@@ -93,7 +93,7 @@ def correct_bl():
     del t_f[i:]
 
 def main_bl():
-    global V_h, a, t, al, x, u, g, h, i, a_max, q, dm
+    global V_h, a, t, al, x, u, g, h, i, a_max, q, dm, m
     V_h.append(V_h[i] + a * t * math.sin(al))
     x.append(x[i] + (V_h[i] + V_h[i + 1]) / 2 * t)
     u.append(u[i] + (a * math.cos(al) - g) * t)
@@ -345,7 +345,7 @@ class SimulationApp(App):
             print(f"Error fetching highscore data: {str(e)}")
 
     def process_input(self, instance):
-        global dm, t, al, i
+        global dm, t, al, i, m
 
         try:
             dm = float(self.dm_input.text)
@@ -353,6 +353,13 @@ class SimulationApp(App):
             al = float(self.al_input.text)
             al = math.pi / 180 * al  # Convert degrees to radians
 
+            # Ensure the list `m` is initialized and `i` is within bounds
+            if not m:
+                m = [float(1000)]  # Initialize with a default value
+            if i >= len(m):
+                i = 0  # Reset the index if it's out of bounds
+
+            # Check if dm is greater than the current mass
             if dm > m[i]:
                 t = t * m[i] / dm
                 dm = m[i]
