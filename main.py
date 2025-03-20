@@ -296,8 +296,8 @@ class SimulationApp(App):
 
         # Add 15 lines of text
         self.text_lines = BoxLayout(orientation='vertical', padding=10, spacing=10)
-        for i in range(15):
-            line_label = Label(text=f"Line {i + 1}", size_hint_y=None, height=30, font_size=24)
+        for j in range(15):
+            line_label = Label(text=f"Line {j + 1}", size_hint_y=None, height=30, font_size=24)
             self.text_lines.add_widget(line_label)
 
         self.text_layout.add_widget(self.text_lines)
@@ -352,12 +352,6 @@ class SimulationApp(App):
             t = float(self.t_input.text)
             al = float(self.al_input.text)
             al = math.pi / 180 * al  # Convert degrees to radians
-
-            # Ensure the list `m` is initialized and `i` is within bounds
-            if not m:
-                m = [float(1000)]  # Initialize with a default value
-            if i >= len(m):
-                i = 0  # Reset the index if it's out of bounds
 
             # Check if dm is greater than the current mass
             if dm > m[i]:
