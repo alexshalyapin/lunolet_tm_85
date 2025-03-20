@@ -52,7 +52,7 @@ def send_post_request():
         'value1': res,
         'value2': _s,
         'value3': _v,
-        'value4': dm
+        'value4': m[i-1]
     }
     json_data = json.dumps(tabl_rec)
     headers = {'Content-Type': 'application/json'}
@@ -283,6 +283,10 @@ class SimulationApp(App):
         # Add widgets to highscore layout
         self.highscore_layout.add_widget(self.highscore_column_headers)
         self.highscore_layout.add_widget(self.highscore_scroll)
+
+        self.update_button = Button(text="Обновить", size_hint=(1, 0.1))
+        self.update_button.bind(on_press=lambda instance: self.fetch_highscore_data())
+        self.highscore_layout.add_widget(self.update_button)
 
         self.highscore_tab.add_widget(self.highscore_layout)
 
