@@ -16,7 +16,7 @@ import requests
 import json
 
 # Global variables
-url = 'http://185.18.54.154:8000/myapp/receive_data/'
+url = 'http://185.18.54.154:8000/myapp/receive_tab_rec/'
 g = float(1.62)
 M = float(2250)
 m = [float(1000)]
@@ -44,25 +44,21 @@ input_history = []
 
 def send_post_request():
     global V_h, x, u, i, m, _s0
-    _s = fabs(_s0 - x[i - 1])
-    _v = (u[i - 1] ** 2 + V_h[i - 1] ** 2) ** (0.5)
-    res = 10 * ((200 / _s) + (100 / _v) + m[i - 1])
-    tabl_rec = {
-        'text': 'Alex',
-        'value1': res,
-        'value2': _s,
-        'value3': _v,
-        'value4': m[i-1]
+    data = {
+        'name': 'Alex',
+        's': fabs(x[i-1]-_s0),
+        'u': u[i-1],
+        'v': V_h[i-1],
+        'm': m[i-1]
     }
-    json_data = json.dumps(tabl_rec)
+
+    json_data = json.dumps(data)
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, data=json_data, headers=headers)
 
     # Check response
     if response.status_code == 200:
         table = response.json().get('table', [])
-        for entry in table:
-            print(entry)
     else:
         print(f"Error: {response.status_code}")
         print(response.text)
@@ -261,7 +257,7 @@ class SimulationApp(App):
 
         # Add column headers
         self.highscore_column_headers = GridLayout(cols=5, size_hint_y=None, height=40, spacing=20)
-        headers = ["Имя", "Результат", "Отклон.", "Скорость", "Ост.топл"]
+        headers = ["Имя", "Отклон.", "Ск.верт.", "Ск.гориз","Ост.топл"]
         for header in headers:
             header_label = BorderedLabel(text=header, size_hint_x=None, width=150, bold=True)
             self.highscore_column_headers.add_widget(header_label)
@@ -300,10 +296,21 @@ class SimulationApp(App):
 
         # Add 15 lines of text
         self.text_lines = BoxLayout(orientation='vertical', padding=10, spacing=10)
-        for j in range(15):
-            line_label = Label(text=f"Line {j + 1}", size_hint_y=None, height=30, font_size=24)
-            self.text_lines.add_widget(line_label)
 
+
+        line_label = Label(text=f"Для управления лунолетом введите кол-во топлива, \n"
+                                f"время маневра, угол отклонения от вертикали.\n "
+                                f"Ваша цель - пролететь 250 000м\n"
+                                f"Ограничения: \n"
+                                f"1.Кол-во топлива не должно превышать 5% от общей \n"
+                                f"массы (2250+1000 на момент старта)\n"
+                                f"2.Допустимое ускорение - не более 3g, при превышении \n"
+                                f"считается, что пилот потерял сознание, корабль выкл. \n"
+                                f"двигатель на время пропорциональное превышению \n"
+                                f"\n"
+                                f"\n"
+                                f"\n", size_hint_y=1, height=30, font_size=24)
+        self.text_lines.add_widget(line_label)
         self.text_layout.add_widget(self.text_lines)
         self.text_tab.add_widget(self.text_layout)
 
@@ -326,7 +333,7 @@ class SimulationApp(App):
             if response.status_code == 200:
                 table = response.json().get('table', [])
                 # Sort by value1 (descending order)
-                table.sort(key=lambda x: x['value1'], reverse=True)
+                table.sort(key=lambda x: x['s'], reverse=False)
 
                 # Clear existing highscore content
                 self.highscore_table.clear_widgets()
@@ -334,11 +341,11 @@ class SimulationApp(App):
                 # Add new highscore entries
                 for entry in table:
                     values = [
-                        entry['text'],
-                        str(round(entry['value1'])),
-                        str(round(entry['value2'],2)),
-                        str(round(entry['value3'])),
-                        str(round(entry['value4']))
+                        entry['name'],
+                        str(round(entry['s'],2)),
+                        str(round(entry['u'],2)),
+                        str(round(entry['v'],2)),
+                        str(round(entry['m'],2))
                     ]
                     for value in values:
                         value_label = BorderedLabel(text=value, size_hint_x=None, width=150)
