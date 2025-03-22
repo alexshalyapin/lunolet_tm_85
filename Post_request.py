@@ -2,15 +2,15 @@ import requests
 import json
 
 # URL of the Django server
-url = 'http://185.18.54.154:8000/myapp/receive_data/'
+url = 'http://185.18.54.154:8000/myapp/receive_tab_rec/'
 
 # Data to send
 data = {
-    'text': 'Alex',
-    'value1': 1,
-    'value2': 0,
-    'value3': 0,
-    'value4': 0
+   'name': 'Alex',
+   's': 250019,
+   'u': -4.4,
+   'v': 4.45,
+   'm': 9.11
 }
 
 # Convert data to JSON
