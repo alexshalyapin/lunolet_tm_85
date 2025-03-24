@@ -42,26 +42,53 @@ Submit_button_text = 'ok'
 data_history = []
 input_history = []
 
+
 def send_post_request():
     global V_h, x, u, i, m, _s0
-    data = {
-        'name': 'Alex',
-        's': fabs(x[i-1]-_s0),
-        'u': u[i-1],
-        'v': V_h[i-1],
-        'm': m[i-1]
-    }
 
-    json_data = json.dumps(data)
-    headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, data=json_data, headers=headers)
+    # Create a popup layout
+    popup_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
-    # Check response
-    if response.status_code == 200:
-        table = response.json().get('table', [])
-    else:
-        print(f"Error: {response.status_code}")
-        print(response.text)
+    # Add a label and text input for the name
+    popup_layout.add_widget(Label(text="Введите ваше имя:"))
+    name_input = TextInput(multiline=False, size_hint=(1, None), height=40)
+    popup_layout.add_widget(name_input)
+
+    # Add a submit button
+    submit_button = Button(text="Отправить", size_hint=(1, None), height=40)
+    popup_layout.add_widget(submit_button)
+
+    # Create the popup
+    popup = Popup(title="Имя для таблицы рекордов",
+                  content=popup_layout,
+                  size_hint=(0.8, 0.4))
+
+    def send_data(instance):
+        name = name_input.text.strip()
+        if name:  # Only send if name is not empty
+            data = {
+                'name': name,
+                's': fabs(x[i - 1] - _s0),
+                'u': u[i - 1],
+                'v': V_h[i - 1],
+                'm': m[i - 1]
+            }
+
+            json_data = json.dumps(data)
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, data=json_data, headers=headers)
+
+            # Check response
+            if response.status_code == 200:
+                table = response.json().get('table', [])
+            else:
+                print(f"Error: {response.status_code}")
+                print(response.text)
+
+        popup.dismiss()
+
+    submit_button.bind(on_press=send_data)
+    popup.open()
 
 def q_a():
     global q, dm, t, C, M, m, a
@@ -299,14 +326,16 @@ class SimulationApp(App):
 
 
         line_label = Label(text=f"Для управления лунолетом введите кол-во топлива, \n"
-                                f"время маневра, угол отклонения от вертикали.\n "
-                                f"Ваша цель - пролететь 250 000м\n"
+                                f"время маневра, угол отклонения от вертикали в градусах.\n "
+                                f"Ваша цель - пролететь 250 000м, используя 1000кг топлива \n"
                                 f"Ограничения: \n"
                                 f"1.Кол-во топлива не должно превышать 5% от общей \n"
                                 f"массы (2250+1000 на момент старта)\n"
                                 f"2.Допустимое ускорение - не более 3g, при превышении \n"
                                 f"считается, что пилот потерял сознание, корабль выкл. \n"
                                 f"двигатель на время пропорциональное превышению \n"
+                                f"3.Для работы вкладки <<Таблица рекордов>> необходим \n"
+                                f"доступ к интернет."
                                 f"\n"
                                 f"\n"
                                 f"\n", size_hint_y=1, height=30, font_size=24)
@@ -351,9 +380,11 @@ class SimulationApp(App):
                         value_label = BorderedLabel(text=value, size_hint_x=None, width=150)
                         self.highscore_table.add_widget(value_label)
             else:
-                print(f"Error fetching highscore data: {response.status_code}")
+                self.show_popup("Error", f"Ошибка обращения к серверу: {response.status_code}  ")
+                #print(f"Error fetching highscore data: {response.status_code}")
         except Exception as e:
-            print(f"Error fetching highscore data: {str(e)}")
+            self.show_popup("Error", f"Ошибка обращения к серверу  ")
+            #print(f"Error fetching highscore data: {str(e)}")
 
     def process_input(self, instance):
         global dm, t, al, i, m
