@@ -116,7 +116,7 @@ def correct_bl():
     del t_f[i:]
 
 def main_bl():
-    global V_h, a, t, al, x, u, g, h, i, a_max, q, dm, m
+    global V_h, a, t, al, x, u, g, h, i, a_max, q, dm, m, data_history, input_history
     V_h.append(V_h[i] + a * t * math.sin(al))
     x.append(x[i] + (V_h[i] + V_h[i + 1]) / 2 * t)
     u.append(u[i] + (a * math.cos(al) - g) * t)
@@ -126,6 +126,19 @@ def main_bl():
     if a > a_max:
         t_f.append(t_f[i] + t)
         i += 1
+        data_history.append({
+            "i": i,
+            "h": h[i],
+            "x": x[i],
+            "u": u[i],
+            "V_h": V_h[i],
+            "t_f": t_f[i]
+        })
+        input_history.append({
+            "dm": dm,
+            "t": t,
+            "al": al / math.pi * 180
+        })
         dm = 0
         t = a - a_max
         # Replace the print statement with a popup
@@ -423,6 +436,7 @@ class SimulationApp(App):
                 if ((h[i] < 0) and (abs(h[i]) > h_min)):
                     t = 2 * h[i] / (math.sqrt(u[i] ** 2 + 2 * h[i] * (g - a * math.cos(al))) - u[i])
                     correct_bl()
+
                     # Show the results dialog
                     self.show_results_dialog()
                     i -= 1
