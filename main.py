@@ -17,6 +17,7 @@ import json
 
 # Global variables
 url = 'http://185.18.54.154:8000/myapp/receive_tab_rec/'
+player_name = "Alex"
 g = float(1.62)
 M = float(2250)
 m = [float(1000)]
@@ -46,7 +47,7 @@ def send_post_request():
     global V_h, x, u, i, m, _s0
 
     data = {
-        'name': 'Alex',
+        'name': player_name,
         's': fabs(x[i-1]-_s0),
         'u': u[i-1],
         'v': V_h[i-1],
@@ -156,6 +157,39 @@ class TabbedTextInput(TextInput):
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 class SimulationApp(App):
+    def on_start(self):
+        # Show name prompt when app starts
+        self.show_name_prompt()
+
+    def show_name_prompt(self):
+        global player_name
+
+        # Create a popup layout
+        popup_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        # Add a label and text input for the name
+        popup_layout.add_widget(Label(text="Введите ваше имя:"))
+        name_input = TextInput(text=player_name, multiline=False, size_hint=(1, None), height=40)
+        popup_layout.add_widget(name_input)
+
+        # Add a submit button
+        submit_button = Button(text="OK", size_hint=(1, None), height=40)
+        popup_layout.add_widget(submit_button)
+
+        # Create the popup
+        popup = Popup(title="Введите имя игрока",
+                      content=popup_layout,
+                      size_hint=(0.8, 0.4))
+
+        def set_name(instance):
+            global player_name
+            name = name_input.text.strip()
+            if name:  # Only set if name is not empty
+                player_name = name
+            popup.dismiss()
+
+        submit_button.bind(on_press=set_name)
+        popup.open()
+
     def build(self):
         global i
         self.tabs = TabbedPanel(do_default_tab=False, size_hint=(1, 1))
