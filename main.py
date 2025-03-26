@@ -20,7 +20,8 @@ url = 'http://185.18.54.154:8000/myapp/receive_tab_rec/'
 player_name = "Alex"
 g = float(1.62)
 M = float(2250)
-m = [float(1000)]
+m_start_fuel = [float(1000)]
+m = m_start_fuel
 C = float(3660)
 _s0 = 250000
 q = float(0)
@@ -38,7 +39,7 @@ i = int(0)
 t_f = [float(0)]
 file_background = '111.jpg'
 file_background2 = '222.jpg'
-Submit_button_text = 'ok'
+#Submit_button_text = 'ok'
 # Data storage for the tabs
 data_history = []
 input_history = []
@@ -167,7 +168,7 @@ class SimulationApp(App):
         # Create a popup layout
         popup_layout = BoxLayout(orientation='vertical', padding=40, spacing=10)
         # Add a label and text input for the name
-        popup_layout.add_widget(Label(text="Введите ваше имя:"))
+        popup_layout.add_widget(Label(text="Введите имя игрока:"))
         name_input = TextInput(text=player_name, multiline=False, size_hint=(1, None), height=60)
         popup_layout.add_widget(name_input)
 
@@ -360,7 +361,7 @@ class SimulationApp(App):
                                 f"доступ к интернет."
                                 f"\n"
                                 f"\n"
-                                f"\n", size_hint_y=1, height=30, font_size=24)
+                                f"\n", size_hint_y=1, height=30, font_size=32)
         self.text_lines.add_widget(line_label)
         self.text_layout.add_widget(self.text_lines)
         self.text_tab.add_widget(self.text_layout)
@@ -588,7 +589,7 @@ class SimulationApp(App):
         V_h = [float(0)]
         x = [float(0)]
         u = [float(0)]
-        m = [float(1000)]
+        m = m_start_fuel
         t_f = [float(0)]
         data_history = []
         input_history = []
