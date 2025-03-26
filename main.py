@@ -17,7 +17,6 @@ import json
 
 # Global variables
 url = 'http://185.18.54.154:8000/myapp/receive_tab_rec/'
-player_name = "Alex"
 g = float(1.62)
 M = float(2250)
 m = [float(1000)]
@@ -43,71 +42,24 @@ Submit_button_text = 'ok'
 data_history = []
 input_history = []
 
-
 def send_post_request():
     global V_h, x, u, i, m, _s0
 
-    # Create a popup layout
-    popup_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
-
-    # Add a label and text input for the name
-    popup_layout.add_widget(Label(text="Введите ваше имя:"))
-    name_input = TextInput(multiline=False, size_hint=(1, None), height=40)
-    popup_layout.add_widget(name_input)
-
-    # Add a submit button
-    submit_button = Button(text="Отправить", size_hint=(1, None), height=40)
-    popup_layout.add_widget(submit_button)
-
-    # Create the popup
-    popup = Popup(title="Имя для таблицы рекордов",
-                  content=popup_layout,
-                  size_hint=(0.8, 0.4))
-
-    def send_data(instance):
-        name = name_input.text.strip()
-        if name:  # Only send if name is not empty
-            data = {
-                'name': name,
-                's': fabs(x[i - 1] - _s0),
-                'u': u[i - 1],
-                'v': V_h[i - 1],
-                'm': m[i - 1]
-            }
-
-            json_data = json.dumps(data)
-            headers = {'Content-Type': 'application/json'}
-            response = requests.post(url, data=json_data, headers=headers)
-
-            # Check response
-            if response.status_code == 200:
-                table = response.json().get('table', [])
-            else:
-                print(f"Error: {response.status_code}")
-                print(response.text)
-
-        popup.dismiss()
-
-    submit_button.bind(on_press=send_data)
-    popup.open()
-
-def send_get_request():
-    global V_h, x, u, i, m, _s0
     data = {
-        'name': player_name,
+        'name': 'Alex',
         's': fabs(x[i-1]-_s0),
         'u': u[i-1],
         'v': V_h[i-1],
         'm': m[i-1]
     }
 
-    response = requests.get(url)
+    json_data = json.dumps(data)
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, data=json_data, headers=headers)
 
+    # Check response
     if response.status_code == 200:
         table = response.json().get('table', [])
-        print("Received Table:")
-        for entry in table:
-            print(entry)
     else:
         print(f"Error: {response.status_code}")
         print(response.text)
@@ -138,7 +90,7 @@ def correct_bl():
     del t_f[i:]
 
 def main_bl():
-    global V_h, a, t, al, x, u, g, h, i, a_max, q, dm, m, data_history, input_history
+    global V_h, a, t, al, x, u, g, h, i, a_max, q, dm, m
     V_h.append(V_h[i] + a * t * math.sin(al))
     x.append(x[i] + (V_h[i] + V_h[i + 1]) / 2 * t)
     u.append(u[i] + (a * math.cos(al) - g) * t)
@@ -148,19 +100,6 @@ def main_bl():
     if a > a_max:
         t_f.append(t_f[i] + t)
         i += 1
-        data_history.append({
-            "i": i,
-            "h": h[i],
-            "x": x[i],
-            "u": u[i],
-            "V_h": V_h[i],
-            "t_f": t_f[i]
-        })
-        input_history.append({
-            "dm": dm,
-            "t": t,
-            "al": al / math.pi * 180
-        })
         dm = 0
         t = a - a_max
         # Replace the print statement with a popup
@@ -458,7 +397,6 @@ class SimulationApp(App):
                 if ((h[i] < 0) and (abs(h[i]) > h_min)):
                     t = 2 * h[i] / (math.sqrt(u[i] ** 2 + 2 * h[i] * (g - a * math.cos(al))) - u[i])
                     correct_bl()
-
                     # Show the results dialog
                     self.show_results_dialog()
                     i -= 1
