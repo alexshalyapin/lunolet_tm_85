@@ -17,6 +17,7 @@ import json
 
 # Global variables
 url = 'http://185.18.54.154:8000/myapp/receive_tab_rec/'
+player_name = "Alex"
 g = float(1.62)
 M = float(2250)
 m = [float(1000)]
@@ -59,6 +60,27 @@ def send_post_request():
     # Check response
     if response.status_code == 200:
         table = response.json().get('table', [])
+    else:
+        print(f"Error: {response.status_code}")
+        print(response.text)
+
+def send_get_request():
+    global V_h, x, u, i, m, _s0
+    data = {
+        'name': player_name,
+        's': fabs(x[i-1]-_s0),
+        'u': u[i-1],
+        'v': V_h[i-1],
+        'm': m[i-1]
+    }
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        table = response.json().get('table', [])
+        print("Received Table:")
+        for entry in table:
+            print(entry)
     else:
         print(f"Error: {response.status_code}")
         print(response.text)
