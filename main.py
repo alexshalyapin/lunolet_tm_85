@@ -177,7 +177,7 @@ class SimulationApp(App):
         popup_layout.add_widget(submit_button)
 
         # Create the popup
-        popup = Popup(title="Введите имя игрока",
+        popup = Popup(title="",
                       content=popup_layout,
                       size_hint=(0.8, 0.4))
 
