@@ -119,7 +119,7 @@ def main_bl():
             "t_f": t_f[i]
         })
         # Replace the print statement with a popup
-        SimulationApp.get_running_app().show_a_max_popup(a, t)
+        SimulationApp.get_running_app().show_popup("Error", f"a > a_max\n a: {a:.2f}\n t: {t:.2f} ")
         q_a()
         main_bl()
 
@@ -514,17 +514,6 @@ class SimulationApp(App):
         popup_layout.add_widget(popup_button)
 
         popup = Popup(title=title, content=popup_layout, size_hint=(0.8, 0.4))
-        popup_button.bind(on_press=popup.dismiss)
-        popup.open()
-
-    def show_a_max_popup(self, a, t):
-        popup_layout = BoxLayout(orientation='vertical', padding=10, spacing=0)
-        popup_label = Label(text=f"a > a_max\n a: {a:.2f}\n t: {t:.2f}")
-        popup_button = Button(text="OK", size_hint=(1, 0.2))
-        popup_layout.add_widget(popup_label)
-        popup_layout.add_widget(popup_button)
-
-        popup = Popup(title="Внимание!", content=popup_layout, size_hint=(0.8, 0.4))
         popup_button.bind(on_press=popup.dismiss)
         popup.open()
 
