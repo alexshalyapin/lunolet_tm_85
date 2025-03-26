@@ -165,10 +165,10 @@ class SimulationApp(App):
         global player_name
 
         # Create a popup layout
-        popup_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        popup_layout = BoxLayout(orientation='vertical', padding=40, spacing=10)
         # Add a label and text input for the name
         popup_layout.add_widget(Label(text="Введите ваше имя:"))
-        name_input = TextInput(text=player_name, multiline=False, size_hint=(1, None), height=40)
+        name_input = TextInput(text=player_name, multiline=False, size_hint=(1, None), height=60)
         popup_layout.add_widget(name_input)
 
         # Add a submit button
