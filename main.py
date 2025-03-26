@@ -99,9 +99,23 @@ def main_bl():
 
     if a > a_max:
         t_f.append(t_f[i] + t)
+        input_history.append({
+            "dm": dm,
+            "t": t,
+            "al": al / math.pi * 180
+        })
+
         i += 1
         dm = 0
         t = a - a_max
+        data_history.append({
+            "i": i,
+            "h": h[i],
+            "x": x[i],
+            "u": u[i],
+            "V_h": V_h[i],
+            "t_f": t_f[i]
+        })
         # Replace the print statement with a popup
         SimulationApp.get_running_app().show_a_max_popup(a, t)
         q_a()
