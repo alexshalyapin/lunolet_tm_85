@@ -159,12 +159,7 @@ class TabbedTextInput(TextInput):
 
 class SimulationApp(App):
     def on_start(self):
-        # Show name prompt when app starts
-        self.show_name_prompt()
-
-    def show_name_prompt(self):
         global player_name
-
         # Create a popup layout
         popup_layout = BoxLayout(orientation='vertical', padding=40, spacing=10)
         # Add a label and text input for the name
@@ -241,7 +236,7 @@ class SimulationApp(App):
 
         # Second Tab: Input History
         self.input_history_tab = TabbedPanelItem(text="Ист. ввода", font_size=24)
-        self.input_history_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        self.input_history_layout = BoxLayout(orientation='vertical', padding=1, spacing=10)
 
         # Add column headers
         self.input_column_headers = GridLayout(cols=3, size_hint_y=None, height=40, spacing=20)
@@ -272,7 +267,7 @@ class SimulationApp(App):
 
         # Third Tab: History
         self.history_tab = TabbedPanelItem(text="История", font_size=24)
-        self.history_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        self.history_layout = BoxLayout(orientation='vertical', padding=1, spacing=10)
 
         # Add column headers
         self.column_headers = GridLayout(cols=6, size_hint_y=None, height=40, spacing=20)
@@ -303,7 +298,7 @@ class SimulationApp(App):
 
         # Fourth Tab: Highscore Table
         self.highscore_tab = TabbedPanelItem(text="Табл.рек.", font_size=24)
-        self.highscore_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        self.highscore_layout = BoxLayout(orientation='vertical', padding=1, spacing=10)
 
         # Add column headers
         self.highscore_column_headers = GridLayout(cols=5, size_hint_y=None, height=40, spacing=20)
@@ -343,10 +338,7 @@ class SimulationApp(App):
         # Add background image
         self.text_background = Image(source=file_background2, allow_stretch=True, keep_ratio=False, size_hint=(1, 1))
         self.text_layout.add_widget(self.text_background)
-
-        # Add 15 lines of text
-        self.text_lines = BoxLayout(orientation='vertical', padding=10, spacing=10)
-
+        self.text_lines = BoxLayout(orientation='vertical', padding=1, spacing=10)
 
         line_label = Label(text=f"Для управления лунолетом введите кол-во топлива, \n"
                                 f"время маневра, угол отклонения от вертикали в градусах.\n "
@@ -384,7 +376,6 @@ class SimulationApp(App):
             response = requests.get(url)
             if response.status_code == 200:
                 table = response.json().get('table', [])
-                # Sort by value1 (descending order)
                 table.sort(key=lambda x: x['s'], reverse=False)
 
                 # Clear existing highscore content
