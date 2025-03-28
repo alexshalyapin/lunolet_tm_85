@@ -39,7 +39,6 @@ i = int(0)
 t_f = [float(0)]
 file_background = '111.jpg'
 file_background2 = '222.jpg'
-#Submit_button_text = 'ok'
 # Data storage for the tabs
 data_history = []
 input_history = []
@@ -118,7 +117,6 @@ def main_bl():
             "V_h": V_h[i],
             "t_f": t_f[i]
         })
-        # Replace the print statement with a popup
         SimulationApp.get_running_app().show_popup("Error", f"a > a_max\n a: {a:.2f}\n t: {t:.2f} ")
         q_a()
         main_bl()
@@ -449,7 +447,7 @@ class SimulationApp(App):
                     f"Сек.расход не более:   {str(round(a_max * (M + m[i]) / C, 2))}, "
                     f"Время:     {str(round(100 / (a_max * (M + m[i]) / C), 2))}\n"
                     f"Остаток топл.:     {round(m[i], 2)},    a: {round(a, 2)}\n"
-                    f"Общее время:       {round(t_f[i], 2)}\n"
+                    f"5% массы:       {round(0.05 * (M + m[i]), 2)}\n"
                 )
                 self.result_label.text = result_text
 
@@ -584,7 +582,6 @@ class SimulationApp(App):
 
         # Close the dialog
         dialog.dismiss()
-
 
 if __name__ == '__main__':
     SimulationApp().run()
