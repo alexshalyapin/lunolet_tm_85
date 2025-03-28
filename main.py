@@ -177,6 +177,7 @@ class SimulationApp(App):
         popup = Popup(title="",
                       content=popup_layout,
                       size_hint=(0.8, 0.4))
+        gr.view_rec_local()
 
         def set_name(instance):
             global player_name
@@ -573,8 +574,8 @@ class SimulationApp(App):
         u = [float(0)]
         m = [m_start_fuel]
         t_f = [float(0)]
-        data_history = []
-        input_history = []
+        data_history.clear()
+        input_history.clear()
 
         # Clear input fields
         self.dm_input.text = "100"
