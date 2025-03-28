@@ -28,8 +28,8 @@ def sync_high_scores(player_name, x, u, V_h, m, i, _s0):
         _s0 (float): Target distance
     """
     # Local database setup
-    local_db = 'hi_res.db'
     url = 'http://185.18.54.154:8000/myapp/receive_tab_rec'
+    local_db = 'hi_res.db'
 
     # 1. Create local database if it doesn't exist
     conn = sqlite3.connect(local_db)
@@ -63,8 +63,8 @@ def sync_high_scores(player_name, x, u, V_h, m, i, _s0):
                             abs(float(entry['s']) == abs(c) and
                                 abs(float(entry['u'])) == abs(y) and
                                 abs(float(entry['v'])) == abs(v) and
-                                abs(float(entry['m'])) == abs(m_local)):
-                    found = True
+                                abs(float(entry['m'])) == abs(m_local))):
+                        found = True
                         break
 
                 if not found:
