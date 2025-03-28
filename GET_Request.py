@@ -3,8 +3,10 @@ import sqlite3
 import json
 from math import fabs
 
-url = 'http://185.18.54.154:8000/myapp/receive_data/'
+
 url2 = 'http://185.18.54.154:8000/myapp/clear_data/'
+url = 'http://185.18.54.154:8000/myapp/receive_tab_rec'
+local_db = 'hi_res.db'
 
 def clear_table():
     global url2
@@ -13,8 +15,30 @@ def clear_table():
         print(f"Error: {response.status_code}")
         print(response.text)
 
+def add_rec_local(name, x, u, v, m):
+    global url, local_db
+    conn = sqlite3.connect(local_db)
+    cursor = conn.cursor()
+
+    # Create table if not exists (with correct schema)
+    cursor.execute('''
+            CREATE TABLE IF NOT EXISTS high_scores (
+                Name TEXT,
+                S REAL,   
+                U REAL,    
+                V REAL,    
+                M REAL     
+            )
+        ''')
+    cursor.execute('''
+                                INSERT INTO high_scores (Name, S, U, V, M)
+                                VALUES (name, x, u, v, m)
+                            ''')
+    conn.commit()
+    conn.close()
 
 def sync_high_scores(player_name, x, u, V_h, m, i, _s0):
+    global url,local_db
     """
     Synchronizes high scores between local SQLite database and remote server.
 
@@ -28,8 +52,7 @@ def sync_high_scores(player_name, x, u, V_h, m, i, _s0):
         _s0 (float): Target distance
     """
     # Local database setup
-    url = 'http://185.18.54.154:8000/myapp/receive_tab_rec'
-    local_db = 'hi_res.db'
+
 
     # 1. Create local database if it doesn't exist
     conn = sqlite3.connect(local_db)
@@ -45,6 +68,16 @@ def sync_high_scores(player_name, x, u, V_h, m, i, _s0):
             v REAL    # Horizontal speed
         )
     ''')
+    cursor.execute('''
+                            INSERT INTO high_scores (name, c, y, m, v)
+                            VALUES (?, ?, ?, ?, ?)
+                        ''', (
+        #entry['name'],
+        #float(entry['s']),
+        #float(entry['u']),
+        #float(entry['m']),
+        #float(entry['v'])
+    ))
     conn.commit()
 
     try:

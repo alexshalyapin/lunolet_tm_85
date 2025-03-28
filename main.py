@@ -14,14 +14,21 @@ import math
 from math import fabs
 import requests
 import json
+#import sqlite3
+import GET_Request as gr
+#local_db = 'hi_res.db'
 
 # Global variables
 url = 'http://185.18.54.154:8000/myapp/receive_tab_rec/'
 player_name = "Alex"
+
+file_background = '111.jpg'
+file_background2 = '222.jpg'
+
 g = float(1.62)
 M = float(2250)
-m_start_fuel = [float(1000)]
-m = m_start_fuel
+m_start_fuel = float(1000)
+m = [m_start_fuel]
 C = float(3660)
 _s0 = 250000
 q = float(0)
@@ -37,21 +44,19 @@ dm = float(0)
 t = float(0)
 i = int(0)
 t_f = [float(0)]
-file_background = '111.jpg'
-file_background2 = '222.jpg'
+
 # Data storage for the tabs
 data_history = []
 input_history = []
 
-def send_post_request():
-    global V_h, x, u, i, m, _s0
-
+def add_rec_chart(name, x, u, v, m):
+    #send rec to server
     data = {
-        'name': player_name,
-        's': fabs(x[i-1]-_s0),
-        'u': u[i-1],
-        'v': V_h[i-1],
-        'm': m[i-1]
+        'name': name,
+        's': x,
+        'u': u,
+        'v': v,
+        'm': m
     }
 
     json_data = json.dumps(data)
@@ -59,11 +64,10 @@ def send_post_request():
     response = requests.post(url, data=json_data, headers=headers)
 
     # Check response
-    if response.status_code == 200:
-        table = response.json().get('table', [])
-    else:
+    if response.status_code != 200:
         print(f"Error: {response.status_code}")
         print(response.text)
+    gr.add_rec_local(name, x, u, v, m)
 
 def q_a():
     global q, dm, t, C, M, m, a
@@ -507,9 +511,9 @@ class SimulationApp(App):
         popup.open()
 
     def show_results_dialog(self):
-        """Display the results in a dialog box with Finish and Repeat buttons."""
+        global V_h, x, u, i, m, _s0
 
-        send_post_request()
+        add_rec_chart(player_name,fabs(x[i-1]-_s0),u[i-1],V_h[i-1],m[i-1])
         dialog_layout = BoxLayout(orientation='vertical', padding=20, spacing=0)
         scroll_view = ScrollView(do_scroll_x=True, do_scroll_y=True)
         grid_layout = GridLayout(cols=6, size_hint_y=1, spacing=0)
@@ -521,15 +525,15 @@ class SimulationApp(App):
             grid_layout.add_widget(header_label)
 
         # Add data rows
-        i_max = len(V_h)
-        for i in range(0, i_max):
+        j_max = len(V_h)
+        for j in range(0, j_max):
             values = [
-                f"{round(h[i], 2)}",
-                f"{round(x[i], 2)}",
-                f"{round(u[i], 2)}",
-                f"{round(V_h[i], 2)}",
-                f"{round(t_f[i], 2)}",
-                f"{round(m[i], 2)}"
+                f"{round(h[j], 2)}",
+                f"{round(x[j], 2)}",
+                f"{round(u[j], 2)}",
+                f"{round(V_h[j], 2)}",
+                f"{round(t_f[j], 2)}",
+                f"{round(m[j], 2)}"
             ]
             for value in values:
                 value_label = BorderedLabel(text=value, size_hint_x=None, width=120)
@@ -567,7 +571,7 @@ class SimulationApp(App):
         V_h = [float(0)]
         x = [float(0)]
         u = [float(0)]
-        m = m_start_fuel
+        m = [m_start_fuel]
         t_f = [float(0)]
         data_history = []
         input_history = []
