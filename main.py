@@ -14,9 +14,9 @@ import math
 from math import fabs
 import requests
 import json
-#import sqlite3
-import GET_Request as gr
-#local_db = 'hi_res.db'
+import sqlite3
+
+local_db = 'hi_res.db'
 
 # Global variables
 url = 'http://185.18.54.154:8000/myapp/receive_tab_rec/'
@@ -49,8 +49,57 @@ t_f = [float(0)]
 data_history = []
 input_history = []
 
+def init_local_db():
+    """Initialize the local SQLite database."""
+    conn = sqlite3.connect(local_db)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            s REAL NOT NULL,
+            u REAL NOT NULL,
+            v REAL NOT NULL,
+            m REAL NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def save_to_local_db(data):
+    """Save record to local database."""
+    try:
+        conn = sqlite3.connect(local_db)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO records (name, s, u, v, m)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (data['name'], data['s'], data['u'], data['v'], data['m']))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error saving to local database: {str(e)}")
+
+def get_local_records():
+    """Retrieve records from local database."""
+    try:
+        conn = sqlite3.connect(local_db)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT name, s, u, v, m FROM records
+            ORDER BY s ASC
+        ''')
+        records = cursor.fetchall()
+        conn.close()
+        return [{'name': r[0], 's': r[1], 'u': r[2], 'v': r[3], 'm': r[4]} for r in records]
+    except Exception as e:
+        print(f"Error retrieving from local database: {str(e)}")
+        return []
+
+
 def add_rec_chart(name, x, u, v, m):
-    #send rec to server
+    # Prepare data
     data = {
         'name': name,
         's': x,
@@ -61,13 +110,20 @@ def add_rec_chart(name, x, u, v, m):
 
     json_data = json.dumps(data)
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, data=json_data, headers=headers)
 
-    # Check response
-    if response.status_code != 200:
-        print(f"Error: {response.status_code}")
-        print(response.text)
-    gr.add_rec_local(name, x, u, v, m)
+    try:
+        # Try to send to server
+        response = requests.post(url, data=json_data, headers=headers, timeout=5)
+
+        # Check response
+        if response.status_code != 200:
+            print(f"Server error: {response.status_code}")
+            print(response.text)
+            save_to_local_db(data)  # Save to local DB if server error
+    except Exception as e:
+        print(f"Connection error: {str(e)}")
+        save_to_local_db(data)  # Save to local DB if connection fails
+
 
 def q_a():
     global q, dm, t, C, M, m, a
@@ -163,6 +219,7 @@ class SimulationApp(App):
     def on_start(self):
         global player_name
         # Create a popup layout
+        init_local_db()
         popup_layout = BoxLayout(orientation='vertical', padding=40, spacing=10)
         # Add a label and text input for the name
         popup_layout.add_widget(Label(text="Введите имя игрока:"))
@@ -353,7 +410,9 @@ class SimulationApp(App):
                                 f"считается, что пилот потерял сознание, корабль выкл. \n"
                                 f"двигатель на время пропорциональное превышению \n"
                                 f"3.Для работы вкладки <<Таблица рекордов>> необходим \n"
-                                f"доступ к интернет."
+                                f"доступ к интернету. При отсутствии подключения данные \n"
+                                f"будут сохранены локально и отображены при следующем \n"
+                                f"запуске программы."
                                 f"\n"
                                 f"\n"
                                 f"\n", size_hint_y=1, height=30, font_size=32)
@@ -374,34 +433,41 @@ class SimulationApp(App):
         return self.tabs
 
     def fetch_highscore_data(self):
-        """Fetch highscore data from the Django server and update the highscore tab."""
+        """Fetch highscore data from server or local database."""
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=5)
             if response.status_code == 200:
                 table = response.json().get('table', [])
-                table.sort(key=lambda x: x['s'], reverse=False)
-
-                # Clear existing highscore content
-                self.highscore_table.clear_widgets()
-
-                # Add new highscore entries
-                for entry in table:
-                    values = [
-                        entry['name'],
-                        str(round(entry['s'],2)),
-                        str(round(entry['u'],2)),
-                        str(round(entry['v'],2)),
-                        str(round(entry['m'],2))
-                    ]
-                    for value in values:
-                        value_label = BorderedLabel(text=value, size_hint_x=None, width=150)
-                        self.highscore_table.add_widget(value_label)
             else:
-                self.show_popup("Error", f"Ошибка обращения к серверу: {response.status_code}  ")
-                #print(f"Error fetching highscore data: {response.status_code}")
+                # If server error, try to get from local DB
+                table = get_local_records()
         except Exception as e:
-            self.show_popup("Error", f"Ошибка обращения к серверу  ")
-            #print(f"Error fetching highscore data: {str(e)}")
+            print(f"Error fetching highscore data: {str(e)}")
+            # Fall back to local database
+            table = get_local_records()
+
+        # Sort and display the data
+        if table:
+            table.sort(key=lambda x: x['s'], reverse=False)
+
+            # Clear existing highscore content
+            self.highscore_table.clear_widgets()
+
+            # Add new highscore entries
+            for entry in table:
+                values = [
+                    entry['name'],
+                    str(round(entry['s'], 2)),
+                    str(round(entry['u'], 2)),
+                    str(round(entry['v'], 2)),
+                    str(round(entry['m'], 2))
+                ]
+                for value in values:
+                    value_label = BorderedLabel(text=value, size_hint_x=None, width=150)
+                    self.highscore_table.add_widget(value_label)
+        else:
+            self.show_popup("Info", "No records available")
+
 
     def process_input(self, instance):
         global dm, t, al, i, m
